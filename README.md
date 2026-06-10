@@ -18,24 +18,34 @@ The application logic (built in vanilla ES6+ JS) implements a modular calculatio
 
 ### Calculation Formula Rules (Annual Emissions in Tons CO₂e):
 * **Transportation**:
-  $$\text{Car Emissions} = \frac{\text{Weekly Miles} \times 52 \times \text{Vehicle Emission Factor}}{1000}$$
+  ```text
+  Car Emissions = (Weekly Miles × 52 × Vehicle Factor) / 1000
+  Flight Emissions = (Annual Flight Hours × 90) / 1000
+  Transit Emissions = (Weekly Public Transit Hours × 52 × 1.2) / 1000
+  ```
   *(Factors in kg CO₂e/mile: Large SUV = 0.45, Medium Sedan = 0.35, Diesel = 0.31, Hybrid = 0.20, EV = 0.08, None = 0.0)*
-  $$\text{Flight Emissions} = \frac{\text{Annual Flight Hours} \times 90\text{ kg CO₂e}}{1000}$$
-  $$\text{Transit Emissions} = \frac{\text{Weekly Public Transit Hours} \times 52 \times 1.2\text{ kg CO₂e}}{1000}$$
 * **Home Energy**:
-  $$\text{Electricity Emissions} = \frac{(\frac{\text{Electricity Bill}}{\$0.15\text{ rate}}) \times 12 \times 0.38\text{ kg CO₂e} \times (1 - \text{Clean Energy Ratio})}{\text{Roommates} \times 1000}$$
-  $$\text{Natural Gas Emissions} = \frac{(\frac{\text{Gas Bill}}{\$1.00\text{ rate}}) \times 12 \times 5.3\text{ kg CO₂e}}{\text{Roommates} \times 1000}$$
+  ```text
+  Electricity Emissions = ((Electricity Bill / 0.15) × 12 × 0.38 × (1 - Clean Energy Ratio)) / (Roommates × 1000)
+  Natural Gas Emissions = ((Gas Bill / 1.00) × 12 × 5.3) / (Roommates × 1000)
+  ```
 * **Diet & Food**:
-  $$\text{Food Impact} = \text{Diet Profile Base} + \text{Waste Adjustment} + \text{Local Sourcing Adjustment}$$
+  ```text
+  Food Impact = Diet Profile Base + Waste Adjustment + Local Sourcing Adjustment
+  ```
   *(Diet Bases: Meat Lover = 3.0T, Balanced = 2.0T, Flexitarian = 1.5T, Vegetarian = 1.1T, Vegan = 0.6T)*
 * **Waste & Shopping**:
-  $$\text{Waste Impact} = \text{Shopping Profile Base} + \text{Recycler Credit} + \text{Composting Credit}$$
+  ```text
+  Waste Impact = Shopping Profile Base + Recycler Credit + Composting Credit
+  ```
   *(Shopping Bases: Minimalist = 0.4T, Average = 0.9T, Heavy = 2.0T)*
 
 ### Core Feature Interactions:
 * **Interactive Simulator**: Scales down baseline emissions dynamically as sliders are moved (e.g. reducing car commute by 50% reduces the transport car emission sector by half in real time).
 * **Gamification (XP/Leveling)**: Completing daily challenges increases points. Level is calculated as:
-  $$\text{Level} = \lfloor\frac{\text{XP}}{100}\rfloor + 1$$
+  ```text
+  Level = floor(XP / 100) + 1
+  ```
 * **Prioritized Recommendations**: The Reduction Roadmap dynamically parses computed scores to place suggestions related to the user's highest emitting category at the top of the interface.
 
 ---
