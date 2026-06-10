@@ -135,6 +135,7 @@ button {
     font-weight: 800;
     background: linear-gradient(135deg, var(--text-primary) 30%, var(--color-emerald) 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
