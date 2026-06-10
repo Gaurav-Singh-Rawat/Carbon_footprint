@@ -83,7 +83,9 @@ The application logic (built in vanilla ES6+ JS) implements a modular calculatio
 * **Performance**: Visual animations and layout rendering utilize optimized CSS hardware-acceleration elements (`transform`, `opacity`, CSS grid transitions).
 
 ### 🧪 Testing
-* **Verification**: Fully tested using automated browser agents verifying navigation flows, form submission computations, dark/light theme switching, and real-time math correctness.
+* **Framework**: Configured with **Jest** for modular, automated unit testing.
+* **Testing Command**: Run tests locally using `npm run test`.
+* **Coverage**: Verified 11 core behaviors including carbon grade evaluations, annual emissions computation math, and simulation offset calculations.
 
 ### ♿ Accessibility (A11y)
 * **High Contrast**: Dark theme colors meet WCAG contrast guidelines, using clean Obsidian backgrounds and vibrant colored tags.
