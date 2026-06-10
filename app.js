@@ -132,75 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Calculations return tons of CO2e per year
     function runCalculations() {
         const d = state.calculatorResults.details;
+        const results = calculateEmissions(d);
         
-        // 1. TRANSPORTATION COMPUTATIONS
-        let carFactor = 0.35; // default medium-petrol
-        if (d.carType === 'large-petrol') carFactor = 0.45;
-        else if (d.carType === 'diesel') carFactor = 0.31;
-        else if (d.carType === 'hybrid') carFactor = 0.20;
-        else if (d.carType === 'ev') carFactor = 0.08;
-        else if (d.carType === 'none') carFactor = 0.0;
-
-        const carCO2 = (d.carMiles * 52 * carFactor) / 1000; // kg to tons
-        const flightCO2 = (d.flights * 90) / 1000; // 90 kg CO2 per flight hour
-        const publicTransportCO2 = (d.publicTransport * 52 * 1.2) / 1000; // 1.2 kg per transit hour
-
-        const totalTransport = carCO2 + flightCO2 + publicTransportCO2;
-
-        // 2. ENERGY COMPUTATIONS
-        // Estimate electricity kWh: monthly bill / $0.15 average rate
-        const electricityKwh = (d.electricityBill / 0.15) * 12;
-        // Clean energy factor discount
-        const cleanDiscount = d.greenEnergy / 100;
-        const electricityCO2 = (electricityKwh * 0.38 * (1 - cleanDiscount)) / 1000; // 0.38 kg CO2 per kWh
-        
-        // Estimate natural gas: monthly bill / $1.00 per therm
-        const gasTherms = (d.gasBill / 1.00) * 12;
-        const gasCO2 = (gasTherms * 5.3) / 1000; // 5.3 kg CO2 per therm
-
-        // Shared household split
-        const totalEnergy = (electricityCO2 + gasCO2) / d.roommates;
-
-        // 3. DIET & FOOD COMPUTATIONS
-        let dietBase = 2.0; // average balanced diet
-        if (d.diet === 'heavy-meat') dietBase = 3.0;
-        else if (d.diet === 'low-meat') dietBase = 1.5;
-        else if (d.diet === 'vegetarian') dietBase = 1.1;
-        else if (d.diet === 'vegan') dietBase = 0.6;
-
-        let foodWasteAdj = 0.0;
-        if (d.foodWaste === 'none') foodWasteAdj = -0.1;
-        else if (d.foodWaste === 'medium') foodWasteAdj = 0.15;
-        else if (d.foodWaste === 'high') foodWasteAdj = 0.35;
-
-        let localFoodAdj = 0.0;
-        if (d.localFood === 'mostly') localFoodAdj = -0.15;
-        else if (d.localFood === 'rarely') localFoodAdj = 0.15;
-
-        const totalFood = Math.max(0.2, dietBase + foodWasteAdj + localFoodAdj);
-
-        // 4. WASTE & CONSUMPTION COMPUTATIONS
-        let shoppingBase = 0.9; // average
-        if (d.shopping === 'minimal') shoppingBase = 0.4;
-        else if (d.shopping === 'heavy') shoppingBase = 2.0;
-
-        let recycleCredit = -0.05; // partial
-        if (d.recycling === 'full') recycleCredit = -0.2;
-        else if (d.recycling === 'none') recycleCredit = 0.1;
-
-        let compostCredit = 0.05; // no compost
-        if (d.compost === 'yes') compostCredit = -0.1;
-
-        const totalWaste = Math.max(0.1, shoppingBase + recycleCredit + compostCredit);
-
-        // COMBINE ALL RESULTS
-        const total = parseFloat((totalTransport + totalEnergy + totalFood + totalWaste).toFixed(1));
-        
-        state.calculatorResults.transport = parseFloat(totalTransport.toFixed(2));
-        state.calculatorResults.energy = parseFloat(totalEnergy.toFixed(2));
-        state.calculatorResults.food = parseFloat(totalFood.toFixed(2));
-        state.calculatorResults.waste = parseFloat(totalWaste.toFixed(2));
-        state.calculatorResults.total = total;
+        state.calculatorResults.transport = results.transport;
+        state.calculatorResults.energy = results.energy;
+        state.calculatorResults.food = results.food;
+        state.calculatorResults.waste = results.waste;
+        state.calculatorResults.total = results.total;
 
         localStorage.setItem('eco_calc', JSON.stringify(state.calculatorResults));
         
@@ -208,50 +146,13 @@ document.addEventListener('DOMContentLoaded', () => {
         unlockBadge('badge-calculator');
     }
 
-    // --- GRADE HELPER ---
-    function getCarbonGrade(co2Value) {
-        if (co2Value < 3.0) return { grade: 'A', class: 'grade-a' };
-        if (co2Value < 6.0) return { grade: 'B', class: 'grade-b' };
-        if (co2Value < 10.0) return { grade: 'C', class: 'grade-c' };
-        if (co2Value < 15.0) return { grade: 'D', class: 'grade-d' };
-        return { grade: 'F', class: 'grade-f' };
-    }
-
     // --- ECO IMPACT SIMULATOR ENGINE ---
     function updateSimulator() {
         const originalCalc = state.calculatorResults;
-        const d = originalCalc.details;
-
-        // Commuting reduction: scales transport car portion down
-        let carFactor = 0.35;
-        if (d.carType === 'large-petrol') carFactor = 0.45;
-        else if (d.carType === 'diesel') carFactor = 0.31;
-        else if (d.carType === 'hybrid') carFactor = 0.20;
-        else if (d.carType === 'ev') carFactor = 0.08;
-        else if (d.carType === 'none') carFactor = 0.0;
-
-        const originalCarCO2 = (d.carMiles * 52 * carFactor) / 1000;
-        const simCarSavings = originalCarCO2 * (state.simulator.carReduction / 100);
-
-        // Plant based meals: saves ~3 kg per meatless day per week annually
-        // e.g. shifting to vegetarian diet daily from meat diet
-        const simDietSavings = (state.simulator.plantDietDays * 3.0 * 52) / 1000;
-
-        // Clean energy: scales energy electricity portion down to clean
-        const electricityKwh = (d.electricityBill / 0.15) * 12;
-        // Remaining electricity that is not clean originally
-        const originalClean = d.greenEnergy / 100;
-        const originalElectricityCO2 = (electricityKwh * 0.38 * (1 - originalClean)) / 1000 / d.roommates;
-        // Simulator clean energy percentage (applied only if simulator energy clean % is greater than baseline)
-        const simCleanPercent = state.simulator.cleanEnergy / 100;
-        let simEnergySavings = 0;
-        if (simCleanPercent > originalClean) {
-            const simulatedElectricityCO2 = (electricityKwh * 0.38 * (1 - simCleanPercent)) / 1000 / d.roommates;
-            simEnergySavings = originalElectricityCO2 - simulatedElectricityCO2;
-        }
-
-        const totalSavings = parseFloat((simCarSavings + simDietSavings + simEnergySavings).toFixed(2));
-        const simulatedCO2 = Math.max(0.5, parseFloat((originalCalc.total - totalSavings).toFixed(1)));
+        const results = calculateSimulatorSavings(originalCalc, state.simulator);
+        
+        const totalSavings = results.totalSavings;
+        const simulatedCO2 = results.simulatedCO2;
 
         // Update Simulator UI values
         document.getElementById('sim-result-co2').textContent = `${simulatedCO2} Tons`;
