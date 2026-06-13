@@ -155,6 +155,162 @@ describe('EcoTrace - Carbon Footprint Calculator Utilities', () => {
             expect(result.food).toBe(0.35); // 0.35
             expect(result.waste).toBe(0.1); // minimum cap
         });
+
+        test('covers all vehicle types correctly', () => {
+            const details = (carType) => ({
+                carMiles: 100,
+                carType,
+                flights: 0,
+                publicTransport: 0,
+                electricityBill: 0,
+                greenEnergy: 0,
+                gasBill: 0,
+                roommates: 1,
+                diet: 'average-meat',
+                foodWaste: 'low',
+                localFood: 'some',
+                recycling: 'partial',
+                compost: 'no',
+                shopping: 'average'
+            });
+
+            // large-petrol (0.45): 100 * 52 * 0.45 / 1000 = 2.34
+            expect(calculateEmissions(details('large-petrol')).transport).toBe(2.34);
+            // diesel (0.31): 100 * 52 * 0.31 / 1000 = 1.612 -> 1.61
+            expect(calculateEmissions(details('diesel')).transport).toBe(1.61);
+            // hybrid (0.20): 100 * 52 * 0.20 / 1000 = 1.04
+            expect(calculateEmissions(details('hybrid')).transport).toBe(1.04);
+            // ev (0.08): 100 * 52 * 0.08 / 1000 = 0.416 -> 0.42
+            expect(calculateEmissions(details('ev')).transport).toBe(0.42);
+            // none (0.0): 0
+            expect(calculateEmissions(details('none')).transport).toBe(0);
+        });
+
+        test('covers all diet types correctly', () => {
+            const details = (diet) => ({
+                carMiles: 0,
+                carType: 'none',
+                flights: 0,
+                publicTransport: 0,
+                electricityBill: 0,
+                greenEnergy: 0,
+                gasBill: 0,
+                roommates: 1,
+                diet,
+                foodWaste: 'low',
+                localFood: 'some',
+                recycling: 'partial',
+                compost: 'no',
+                shopping: 'average'
+            });
+
+            // heavy-meat: 3.0 base
+            expect(calculateEmissions(details('heavy-meat')).food).toBe(3.0);
+            // low-meat: 1.5 base
+            expect(calculateEmissions(details('low-meat')).food).toBe(1.5);
+            // vegetarian: 1.1 base
+            expect(calculateEmissions(details('vegetarian')).food).toBe(1.1);
+            // vegan: 0.6 base
+            expect(calculateEmissions(details('vegan')).food).toBe(0.6);
+        });
+
+        test('covers all food waste levels correctly', () => {
+            const details = (foodWaste) => ({
+                carMiles: 0,
+                carType: 'none',
+                flights: 0,
+                publicTransport: 0,
+                electricityBill: 0,
+                greenEnergy: 0,
+                gasBill: 0,
+                roommates: 1,
+                diet: 'average-meat',
+                foodWaste,
+                localFood: 'some',
+                recycling: 'partial',
+                compost: 'no',
+                shopping: 'average'
+            });
+
+            // none: -0.1 adj -> 2.0 - 0.1 = 1.9
+            expect(calculateEmissions(details('none')).food).toBe(1.9);
+            // medium: 0.15 adj -> 2.0 + 0.15 = 2.15
+            expect(calculateEmissions(details('medium')).food).toBe(2.15);
+            // high: 0.35 adj -> 2.0 + 0.35 = 2.35
+            expect(calculateEmissions(details('high')).food).toBe(2.35);
+        });
+
+        test('covers all local food frequencies correctly', () => {
+            const details = (localFood) => ({
+                carMiles: 0,
+                carType: 'none',
+                flights: 0,
+                publicTransport: 0,
+                electricityBill: 0,
+                greenEnergy: 0,
+                gasBill: 0,
+                roommates: 1,
+                diet: 'average-meat',
+                foodWaste: 'low',
+                localFood,
+                recycling: 'partial',
+                compost: 'no',
+                shopping: 'average'
+            });
+
+            // mostly: -0.15 adj -> 2.0 - 0.15 = 1.85
+            expect(calculateEmissions(details('mostly')).food).toBe(1.85);
+            // rarely: 0.15 adj -> 2.0 + 0.15 = 2.15
+            expect(calculateEmissions(details('rarely')).food).toBe(2.15);
+        });
+
+        test('covers all shopping levels correctly', () => {
+            const details = (shopping) => ({
+                carMiles: 0,
+                carType: 'none',
+                flights: 0,
+                publicTransport: 0,
+                electricityBill: 0,
+                greenEnergy: 0,
+                gasBill: 0,
+                roommates: 1,
+                diet: 'average-meat',
+                foodWaste: 'low',
+                localFood: 'some',
+                recycling: 'partial', // credit -0.05
+                compost: 'no', // credit +0.05
+                shopping
+            });
+
+            // minimal: 0.4 base -> 0.4 - 0.05 + 0.05 = 0.4
+            expect(calculateEmissions(details('minimal')).waste).toBe(0.4);
+            // heavy: 2.0 base -> 2.0 - 0.05 + 0.05 = 2.0
+            expect(calculateEmissions(details('heavy')).waste).toBe(2.0);
+        });
+
+        test('covers all recycling types correctly', () => {
+            const details = (recycling) => ({
+                carMiles: 0,
+                carType: 'none',
+                flights: 0,
+                publicTransport: 0,
+                electricityBill: 0,
+                greenEnergy: 0,
+                gasBill: 0,
+                roommates: 1,
+                diet: 'average-meat',
+                foodWaste: 'low',
+                localFood: 'some',
+                recycling,
+                compost: 'no', // credit +0.05
+                shopping: 'average' // base 0.9
+            });
+
+            // full: -0.2 credit -> 0.9 - 0.2 + 0.05 = 0.75
+            expect(calculateEmissions(details('full')).waste).toBe(0.75);
+            // none: 0.1 credit -> 0.9 + 0.1 + 0.05 = 1.05
+            expect(calculateEmissions(details('none')).waste).toBe(1.05);
+        });
     });
 
     describe('calculateSimulatorSavings', () => {
@@ -245,6 +401,41 @@ describe('EcoTrace - Carbon Footprint Calculator Utilities', () => {
 
             expect(result.energySavings).toBe(0); // savings should not be negative
             expect(result.simulatedCO2).toBe(5.0);
+        });
+
+        test('covers all car types in simulator savings', () => {
+            const details = (carType) => ({
+                total: 10.0,
+                details: {
+                    carMiles: 100,
+                    carType,
+                    flights: 0,
+                    publicTransport: 0,
+                    electricityBill: 0,
+                    greenEnergy: 0,
+                    gasBill: 0,
+                    roommates: 1,
+                    diet: 'average-meat',
+                    foodWaste: 'low',
+                    localFood: 'some',
+                    recycling: 'partial',
+                    compost: 'no',
+                    shopping: 'average'
+                }
+            });
+
+            const simState = { carReduction: 50, plantDietDays: 0, cleanEnergy: 0 };
+
+            // large-petrol (0.45): originalCarCO2 = 100 * 52 * 0.45 / 1000 = 2.34. 50% savings = 1.17
+            expect(calculateSimulatorSavings(details('large-petrol'), simState).carSavings).toBe(1.17);
+            // diesel (0.31): originalCarCO2 = 100 * 52 * 0.31 / 1000 = 1.612. 50% savings = 0.81
+            expect(calculateSimulatorSavings(details('diesel'), simState).carSavings).toBe(0.81);
+            // hybrid (0.20): originalCarCO2 = 100 * 52 * 0.20 / 1000 = 1.04. 50% savings = 0.52
+            expect(calculateSimulatorSavings(details('hybrid'), simState).carSavings).toBe(0.52);
+            // ev (0.08): originalCarCO2 = 100 * 52 * 0.08 / 1000 = 0.416. 50% savings = 0.21
+            expect(calculateSimulatorSavings(details('ev'), simState).carSavings).toBe(0.21);
+            // none (0.0): originalCarCO2 = 0. 50% savings = 0
+            expect(calculateSimulatorSavings(details('none'), simState).carSavings).toBe(0);
         });
     });
 });

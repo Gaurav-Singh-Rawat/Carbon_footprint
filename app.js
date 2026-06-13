@@ -1,7 +1,7 @@
 // EcoTrace Application Logic
 document.addEventListener('DOMContentLoaded', () => {
     // --- STATE MANAGEMENT ---
-    let state = {
+    const state = {
         theme: localStorage.getItem('theme') || 'dark',
         activeTab: 'dashboard',
         xp: parseInt(localStorage.getItem('eco_xp')) || 0,
@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Diet Radio options
             const dietRadio = document.querySelector('input[name="diet"]:checked');
-            if (dietRadio) details.diet = dietRadio.value;
+            if (dietRadio) {details.diet = dietRadio.value;}
             
             details.foodWaste = document.getElementById('calc-food-waste').value;
             details.localFood = document.getElementById('calc-local-food').value;
@@ -537,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderChallenges() {
         const container = document.getElementById('challenges-list-container');
-        if (!container) return;
+        if (!container) {return;}
 
         container.innerHTML = '';
         challengesList.forEach(ch => {
@@ -583,7 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function toggleChallenge(challengeId) {
         const challenge = challengesList.find(ch => ch.id === challengeId);
-        if (!challenge) return;
+        if (!challenge) {return;}
 
         const isAlreadyDone = state.completedChallenges[challengeId] === true;
 
@@ -649,7 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function unlockBadge(badgeId) {
-        let unlocked = getUnlockedBadges();
+        const unlocked = getUnlockedBadges();
         if (!unlocked.includes(badgeId)) {
             unlocked.push(badgeId);
             localStorage.setItem('eco_unlocked_badges', JSON.stringify(unlocked));
@@ -658,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderBadgesList() {
         const container = document.getElementById('badges-grid-container');
-        if (!container) return;
+        if (!container) {return;}
 
         const unlocked = getUnlockedBadges();
         container.innerHTML = '';
@@ -681,7 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderDashboardBadges() {
         const container = document.getElementById('dashboard-badges-container');
-        if (!container) return;
+        if (!container) {return;}
 
         const unlocked = getUnlockedBadges();
         
@@ -793,7 +793,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderRoadmap() {
         const container = document.getElementById('roadmap-grid-container');
-        if (!container) return;
+        if (!container) {return;}
 
         container.innerHTML = '';
 

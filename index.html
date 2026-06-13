@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), camera=(), microphone=(), payment=()">
     <title>EcoTrace | Carbon Footprint Awareness & Reduction Platform</title>
     <!-- Meta tags for SEO -->
     <meta name="description" content="Track, calculate, and reduce your carbon footprint with personalized insights, dynamic charts, daily challenges, and interactive simulators.">
@@ -137,7 +141,7 @@
                         <div class="simulator-controls">
                             <div class="slider-group">
                                 <div class="slider-header">
-                                    <span class="slider-label">Car Commute Reduction</span>
+                                    <label for="sim-car" class="slider-label">Car Commute Reduction</label>
                                     <span class="slider-val" id="sim-car-val">0%</span>
                                 </div>
                                 <input type="range" min="0" max="100" value="0" step="10" class="range-slider slider-transport" id="sim-car">
@@ -145,7 +149,7 @@
 
                             <div class="slider-group">
                                 <div class="slider-header">
-                                    <span class="slider-label">Plant-Based Meals</span>
+                                    <label for="sim-diet" class="slider-label">Plant-Based Meals</label>
                                     <span class="slider-val" id="sim-diet-val">0 days/wk</span>
                                 </div>
                                 <input type="range" min="0" max="7" value="0" step="1" class="range-slider slider-food" id="sim-diet">
@@ -153,7 +157,7 @@
 
                             <div class="slider-group">
                                 <div class="slider-header">
-                                    <span class="slider-label">Clean Household Energy</span>
+                                    <label for="sim-energy" class="slider-label">Clean Household Energy</label>
                                     <span class="slider-val" id="sim-energy-val">0%</span>
                                 </div>
                                 <input type="range" min="0" max="100" value="0" step="10" class="range-slider slider-energy" id="sim-energy">

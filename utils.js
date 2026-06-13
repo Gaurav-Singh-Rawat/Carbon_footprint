@@ -6,10 +6,10 @@
  * @returns {{grade: string, class: string}}
  */
 function getCarbonGrade(co2Value) {
-    if (co2Value < 3.0) return { grade: 'A', class: 'grade-a' };
-    if (co2Value < 6.0) return { grade: 'B', class: 'grade-b' };
-    if (co2Value < 10.0) return { grade: 'C', class: 'grade-c' };
-    if (co2Value < 15.0) return { grade: 'D', class: 'grade-d' };
+    if (co2Value < 3.0) {return { grade: 'A', class: 'grade-a' };}
+    if (co2Value < 6.0) {return { grade: 'B', class: 'grade-b' };}
+    if (co2Value < 10.0) {return { grade: 'C', class: 'grade-c' };}
+    if (co2Value < 15.0) {return { grade: 'D', class: 'grade-d' };}
     return { grade: 'F', class: 'grade-f' };
 }
 
@@ -21,11 +21,11 @@ function getCarbonGrade(co2Value) {
 function calculateEmissions(details) {
     // 1. TRANSPORTATION COMPUTATIONS
     let carFactor = 0.35; // default medium-petrol
-    if (details.carType === 'large-petrol') carFactor = 0.45;
-    else if (details.carType === 'diesel') carFactor = 0.31;
-    else if (details.carType === 'hybrid') carFactor = 0.20;
-    else if (details.carType === 'ev') carFactor = 0.08;
-    else if (details.carType === 'none') carFactor = 0.0;
+    if (details.carType === 'large-petrol') {carFactor = 0.45;}
+    else if (details.carType === 'diesel') {carFactor = 0.31;}
+    else if (details.carType === 'hybrid') {carFactor = 0.20;}
+    else if (details.carType === 'ev') {carFactor = 0.08;}
+    else if (details.carType === 'none') {carFactor = 0.0;}
 
     const carCO2 = (details.carMiles * 52 * carFactor) / 1000; // kg to tons
     const flightCO2 = (details.flights * 90) / 1000; // 90 kg CO2 per flight hour
@@ -49,33 +49,33 @@ function calculateEmissions(details) {
 
     // 3. DIET & FOOD COMPUTATIONS
     let dietBase = 2.0; // average balanced diet
-    if (details.diet === 'heavy-meat') dietBase = 3.0;
-    else if (details.diet === 'low-meat') dietBase = 1.5;
-    else if (details.diet === 'vegetarian') dietBase = 1.1;
-    else if (details.diet === 'vegan') dietBase = 0.6;
+    if (details.diet === 'heavy-meat') {dietBase = 3.0;}
+    else if (details.diet === 'low-meat') {dietBase = 1.5;}
+    else if (details.diet === 'vegetarian') {dietBase = 1.1;}
+    else if (details.diet === 'vegan') {dietBase = 0.6;}
 
     let foodWasteAdj = 0.0;
-    if (details.foodWaste === 'none') foodWasteAdj = -0.1;
-    else if (details.foodWaste === 'medium') foodWasteAdj = 0.15;
-    else if (details.foodWaste === 'high') foodWasteAdj = 0.35;
+    if (details.foodWaste === 'none') {foodWasteAdj = -0.1;}
+    else if (details.foodWaste === 'medium') {foodWasteAdj = 0.15;}
+    else if (details.foodWaste === 'high') {foodWasteAdj = 0.35;}
 
     let localFoodAdj = 0.0;
-    if (details.localFood === 'mostly') localFoodAdj = -0.15;
-    else if (details.localFood === 'rarely') localFoodAdj = 0.15;
+    if (details.localFood === 'mostly') {localFoodAdj = -0.15;}
+    else if (details.localFood === 'rarely') {localFoodAdj = 0.15;}
 
     const totalFood = Math.max(0.2, dietBase + foodWasteAdj + localFoodAdj);
 
     // 4. WASTE & CONSUMPTION COMPUTATIONS
     let shoppingBase = 0.9; // average
-    if (details.shopping === 'minimal') shoppingBase = 0.4;
-    else if (details.shopping === 'heavy') shoppingBase = 2.0;
+    if (details.shopping === 'minimal') {shoppingBase = 0.4;}
+    else if (details.shopping === 'heavy') {shoppingBase = 2.0;}
 
     let recycleCredit = -0.05; // partial
-    if (details.recycling === 'full') recycleCredit = -0.2;
-    else if (details.recycling === 'none') recycleCredit = 0.1;
+    if (details.recycling === 'full') {recycleCredit = -0.2;}
+    else if (details.recycling === 'none') {recycleCredit = 0.1;}
 
     let compostCredit = 0.05; // no compost
-    if (details.compost === 'yes') compostCredit = -0.1;
+    if (details.compost === 'yes') {compostCredit = -0.1;}
 
     const totalWaste = Math.max(0.1, shoppingBase + recycleCredit + compostCredit);
 
@@ -102,11 +102,11 @@ function calculateSimulatorSavings(originalCalc, simulatorState) {
 
     // Commuting reduction: scales transport car portion down
     let carFactor = 0.35;
-    if (details.carType === 'large-petrol') carFactor = 0.45;
-    else if (details.carType === 'diesel') carFactor = 0.31;
-    else if (details.carType === 'hybrid') carFactor = 0.20;
-    else if (details.carType === 'ev') carFactor = 0.08;
-    else if (details.carType === 'none') carFactor = 0.0;
+    if (details.carType === 'large-petrol') {carFactor = 0.45;}
+    else if (details.carType === 'diesel') {carFactor = 0.31;}
+    else if (details.carType === 'hybrid') {carFactor = 0.20;}
+    else if (details.carType === 'ev') {carFactor = 0.08;}
+    else if (details.carType === 'none') {carFactor = 0.0;}
 
     const originalCarCO2 = (details.carMiles * 52 * carFactor) / 1000;
     const simCarSavings = originalCarCO2 * (simulatorState.carReduction / 100);
@@ -139,6 +139,7 @@ function calculateSimulatorSavings(originalCalc, simulatorState) {
 }
 
 // Export for Node.js environment
+/* istanbul ignore next */
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         getCarbonGrade,
